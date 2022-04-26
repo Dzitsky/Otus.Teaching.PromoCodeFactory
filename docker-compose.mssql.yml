@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+
+  #Api
+  promocode-factory-api:    
+    environment:
+      - ConnectionStrings__SqlServerDb=Server=tcp:localhost; Database=Advertisement;Integrated Security=false;uid=sa;password=password123
+    depends_on:
+      - promocode-factory-mssql-db
+
+  #Db
+  promocode-factory-mssql-db:
+    image: liaisonintl/mssql-server-linux
+    container_name: 'promocode-factory-mssql-db'
+    restart: always
+    environment:
+      SA_PASSWORD: password123
+      ACCEPT_EULA: Y
+    ports:
+      - "1433:1433"
+    volumes: # persist data even if container shuts down
+      - mssql_data:/var/opt/mssql/
+
+volumes: # named volumes can be managed easier using docker-compose
+   mssql_data:
