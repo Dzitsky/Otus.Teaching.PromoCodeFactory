@@ -9,7 +9,7 @@ using Otus.Teaching.PromoCodeFactory.WebHost.Models;
 
 namespace Otus.Teaching.PromoCodeFactory.WebHost.Controllers
 {
-    /// <summary>
+   /// <summary>
     /// Сотрудники
     /// </summary>
     [ApiController]
@@ -18,58 +18,94 @@ namespace Otus.Teaching.PromoCodeFactory.WebHost.Controllers
         : ControllerBase
     {
         private readonly IRepository<Employee> _employeeRepository;
+        private readonly IRepository<Role> _roleRepository;
+        //private readonly IMapper _mapper;
 
-        public EmployeesController(IRepository<Employee> employeeRepository)
+        public EmployeesController(
+            IRepository<Employee> employeeRepository,
+            IRepository<Role> roleRepository
+            //,    IMapper mapper
+            )
         {
             _employeeRepository = employeeRepository;
+            _roleRepository = roleRepository;
+            //_mapper = mapper;
         }
-        
+
         /// <summary>
         /// Получить данные всех сотрудников
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<List<EmployeeShortResponse>> GetEmployeesAsync()
+        public async Task<IEnumerable<Employee>> GetEmployeesAsync()
         {
-            var employees = await _employeeRepository.GetAllAsync();
+            IEnumerable<Employee> employees = await _employeeRepository.GetAllAsync();
+            //var employeesModelList = employees.Select(_mapper.Map<EmployeeShortResponse>).ToList();
+            //return employeesModelList;
 
-            var employeesModelList = employees.Select(x => 
-                new EmployeeShortResponse()
-                    {
-                        Id = x.Id,
-                        Email = x.Email,
-                        FullName = x.FullName,
-                    }).ToList();
-
-            return employeesModelList;
+            return employees;
         }
-        
-        /// <summary>
-        /// Получить данные сотрудника по Id
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("{id:guid}")]
-        public async Task<ActionResult<EmployeeResponse>> GetEmployeeByIdAsync(Guid id)
-        {
-            var employee = await _employeeRepository.GetByIdAsync(id);
 
-            if (employee == null)
-                return NotFound();
-            
-            var employeeModel = new EmployeeResponse()
-            {
-                Id = employee.Id,
-                Email = employee.Email,
-                Roles = employee.Roles.Select(x => new RoleItemResponse()
-                {
-                    Name = x.Name,
-                    Description = x.Description
-                }).ToList(),
-                FullName = employee.FullName,
-                AppliedPromocodesCount = employee.AppliedPromocodesCount
-            };
+        ///// <summary>
+        ///// Получить данные сотрудника по Id
+        ///// </summary>
+        ///// <returns></returns>
+        //[HttpGet("{id:guid}")]
+        //public async Task<ActionResult<EmployeeResponse>> GetByIdAsync(Guid id)
+        //{
+        //    var employee = await _employeeRepository.GetByIdAsync(id);
+        //    if (employee == null) return NotFound();
+        //    return _mapper.Map<EmployeeResponse>(employee);
+        //}
 
-            return employeeModel;
-        }
+        ///// <summary>
+        ///// Создать нового сотрудника
+        ///// </summary>
+        ///// <param name="employeeCreateRequest"></param>
+        ///// <returns></returns>
+        //[HttpPost]
+        //public async Task<ActionResult> CreateAsync(EmployeeCreateRequest employeeCreateRequest)
+        //{
+        //    var role = await _roleRepository.GetByIdAsync(employeeCreateRequest.RoleId);
+        //    if (role == null) return BadRequest();
+        //    var employee = _mapper.Map<Employee>(employeeCreateRequest);
+        //    await _employeeRepository.CreateAsync(employee);
+        //    return Ok();
+        //}
+
+        ///// <summary>
+        ///// Обновить данные существующего сотрудника
+        ///// </summary>
+        ///// <param name="employeeUpdateRequest"></param>
+        ///// <returns></returns>
+        //[HttpPut]
+        //public async Task<ActionResult> UpdateAsync(EmployeeUpdateRequest employeeUpdateRequest)
+        //{
+        //    var role = await _roleRepository.GetByIdAsync(employeeUpdateRequest.RoleId);
+        //    if (role == null) return BadRequest();
+        //    var employee = await _employeeRepository.GetByIdAsync(employeeUpdateRequest.Id);
+        //    if (employee == null) return NotFound();
+        //    _mapper.Map(employeeUpdateRequest, employee);
+        //    await _employeeRepository.UpdateAsync(employee);
+        //    return Ok();
+        //}
+
+        ///// <summary>
+        ///// Удалить сотрудника по Id
+        ///// </summary>
+        ///// <param name="id"></param>
+        ///// <returns></returns>
+        //[HttpDelete("{id:guid}")]
+        //public async Task<ActionResult> DeleteAsync(Guid id)
+        //{
+        //    var employee = await _employeeRepository.GetByIdAsync(id);
+        //    if (employee == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    await _employeeRepository.DeleteAsync(employee);
+        //    return Ok();
+        //}
+   
     }
 }
